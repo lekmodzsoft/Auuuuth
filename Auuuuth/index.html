@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bots Up - Key System</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+</head>
+<body>
+  <h2>Gerar Key</h2>
+  <button onclick="gerarKey()">Gerar Key</button>
+  <p id="novaKey"></p>
+
+  <h2>Validar Key</h2>
+  <input type="text" id="inputKey" placeholder="Digite sua key">
+  <button onclick="validarKey()">Validar</button>
+  <p id="resultado"></p>
+
+  <script>
+    // Config Firebase
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_PROJETO.firebaseapp.com",
+      databaseURL: "https://SEU_PROJETO.firebaseio.com",
+      projectId: "SEU_PROJETO",
+      storageBucket: "SEU_PROJETO.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Função para gerar uma key
+    function gerarKey() {
+      const key = Math.random().toString(36).substring(2, 10).toUpperCase();
+      db.ref('keys/' + key).set({ ativa: true });
+      document.getElementById('novaKey').innerText = 'Nova Key: ' + key;
+    }
+
+    // Função para validar uma key
+    function validarKey() {
+      const key = document.getElementById('inputKey').value.trim().toUpperCase();
+      db.ref('keys/' + key).once('value', (snap) => {
+        if (snap.exists() && snap.val().ativa) {
+          db.ref('keys/' + key).update({ ativa: false });
+          document.getElementById('resultado').innerText = 'Key VÁLIDA!';
+        } else {
+          document.getElementById('resultado').innerText = 'Key inválida ou já usada.';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
